@@ -7,7 +7,7 @@ const ADD = 'add';
 const PLAY = 'play';
 const ARGUMENT = '"([\\w\\s]+)"';
 
-const regex = new RegExp(`^(${
+const commandRegExp = new RegExp(`^(${
   SHOW_ALL_BY}) ${ARGUMENT}|(${
   SHOW_ALL})|(${
   SHOW_UNPLAYED_BY}) ${ARGUMENT}|(${
@@ -34,35 +34,41 @@ function add(album, artist) {
   } else {
     artistToAlbums[artist] = [album];
   }
-  albumsToArtistPlayed[album] = [artist, false];
+  albumsToArtistPlayed[album] = {
+    artist,
+    played: false
+  };
   console.log(`Added "${album}" by ${artist}`);
   return true;
 }
 
-function play(album) {
-  if (!albumsToArtistPlayed.hasOwnProperty(album)) {
+function play(albumName) {
+  let album = albumsToArtistPlayed[albumName];
+  if (!album) {
     console.log('Uh oh, that album does not exist');
     return false;
   }
-  albumsToArtistPlayed[album][1] = true;
-  console.log(`You're listening to ${album}.`);
+  album.played = true;
+  console.log(`You're listening to ${albumName}.`);
   return true;
 }
 
-function showAll(artist, unplayed) {
-  albums = artist ? artistToAlbums[artist] : Object.keys(albumsToArtistPlayed);
-  albums.map(album => unplayed && albumsToArtistPlayed[album][1] ? null : console.log(`"${
-    album
+function showAll(artist, unplayedOnly=false) {
+  albumNames = artist ? artistToAlbums[artist] : Object.keys(albumsToArtistPlayed);
+  albumNames.map(
+    albumName => [albumName, albumsToArtistPlayed[albumName]]
+  ).forEach(([albumName, album]) => unplayedOnly && album.played ? null : console.log(`"${
+    albumName
   }" by ${
-    artist || albumsToArtistPlayed[album][0]
+    artist || album.artist
   } (${
-    albumsToArtistPlayed[album][1] ? 'played' : 'unplayed'
+    album.played ? 'played' : 'unplayed'
   })`));
   return true;
 }
 
 function showUnplayed(artist) {
-  showAll(artist, true);
+  showAll(artist, unplayed=true);
 }
 
 const artistToAlbums = {
@@ -78,7 +84,7 @@ const albumsToArtistPlayed = {
   // Object(artistToAlbums).values().reduce((agg, item) => [...agg, ...item], [])
   // that would become an increasingly expensive operation.
   // the value of the key will be equal to whether it's been played
-  // album1: [artist1, false]
+  // album1: {artist: artist1, played: false}
 };
 
 async function main() {
@@ -86,11 +92,11 @@ async function main() {
   let match;
   let promptInput = await promptReader();
   while (promptInput !== 'quit') {
-    match = promptInput.match(regex);
+    match = promptInput.match(commandRegExp);
     if (!match) {
       console.log('Your input was not recognized, please try again.');
     } else {
-      match = match.filter(x => x !== undefined);
+      match = match.filter(m => m !== undefined);
       commandToFunction[match[1]](...match.slice(2));
     }
     promptInput = await promptReader();
