@@ -1,15 +1,15 @@
-const {artistToAlbums, albumsToArtistPlayed} = require('./database');
+const {artists, albums} = require('./database');
 
 function add(album, artist) {
-  if (albumsToArtistPlayed[album]) {
+  if (albums[album]) {
     return ['Whoops, an album by that name has already been entered.'];
   }
-  if (artistToAlbums[artist]) {
-    artistToAlbums[artist].push(album);
+  if (artists[artist]) {
+    artists[artist].push(album);
   } else {
-    artistToAlbums[artist] = [album];
+    artists[artist] = [album];
   }
-  albumsToArtistPlayed[album] = {
+  albums[album] = {
     artist,
     played: false
   };
@@ -17,7 +17,7 @@ function add(album, artist) {
 }
 
 function play(albumName) {
-  let album = albumsToArtistPlayed[albumName];
+  let album = albums[albumName];
   if (!album) {
     return ['Uh oh, that album does not exist'];
   }
@@ -26,9 +26,9 @@ function play(albumName) {
 }
 
 function showAll(artist, unplayedOnly=false) {
-  albumNames = artist ? artistToAlbums[artist] : Object.keys(albumsToArtistPlayed);
+  albumNames = artist ? artists[artist] : Object.keys(albums);
   const messages = albumNames.map(
-    albumName => [albumName, albumsToArtistPlayed[albumName]]
+    albumName => [albumName, albums[albumName]]
   ).filter(
     ([albumName, album]) => !unplayedOnly || !album.played
   ).map(([albumName, album]) => `"${
@@ -77,6 +77,9 @@ function processInput(input) {
   if (!match) {
     return ['Your input was not recognized, please try again.'];
   } else {
+    // this filter gets around the fact that the match array is
+    // given length equal to the full number of capture groups
+    // in the regexp, setting the ones that were not matched to undefined
     match = match.filter(m => m !== undefined);
     return commandToFunction[match[1]](...match.slice(2));
   }
