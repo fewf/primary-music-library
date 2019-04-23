@@ -15,7 +15,7 @@ let output;
 // test adding
 output = processInput('add "Ride the Lightning" "Metallica"');
 assertTrue(output.length === 1);
-assertTrue(output[0]) === 'added "Ride the Lightning" by Metallica';
+assertTrue(output[0] === 'Added "Ride the Lightning" by Metallica');
 assertTrue(artists.Metallica[0] === 'Ride the Lightning');
 assertTrue(albums['Ride the Lightning'].artist === 'Metallica');
 assertTrue(!albums['Ride the Lightning'].played);
