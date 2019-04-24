@@ -1,0 +1,22 @@
+{
+  "name": "primary-music-library",
+  "version": "1.0.0",
+  "description": "assignment for primary",
+  "main": "music.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fewf/primary-music-library.git"
+  },
+  "author": "fewf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fewf/primary-music-library/issues"
+  },
+  "homepage": "https://github.com/fewf/primary-music-library#readme",
+  "devDependencies": {
+    "jest": "^24.7.1"
+  }
+}
